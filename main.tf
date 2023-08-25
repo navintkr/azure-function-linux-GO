@@ -30,6 +30,22 @@ resource "azurerm_subnet" "subnetFunctionApp" {
   }
 }
 
+resource "azurerm_storage_account" "functionAppStorage" {
+  name                            = "${var.prefix}funcaoostore"
+  resource_group_name             = azurerm_resource_group.example.name
+  location                        = var.region
+  account_kind                    = "StorageV2"
+  account_tier                    = "Standard"
+  account_replication_type        = "LRS"
+  allow_nested_items_to_be_public = "false"
+  network_rules {
+    default_action             = "Deny"
+    bypass                     = ["AzureServices"]
+    ip_rules  = ["X.X.X.X"] #public IP of the source
+    virtual_network_subnet_ids = [azurerm_subnet.subnetFunctionApp.id]
+  }
+}
+
 resource "azurerm_service_plan" "adf-functions-premium-asp" {
   name                = "${var.prefix}-function-asp"
   location            = var.region
